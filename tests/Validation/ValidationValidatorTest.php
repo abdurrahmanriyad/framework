@@ -6726,6 +6726,37 @@ class ValidationValidatorTest extends TestCase
 
         $v = new Validator($trans, ['x' => '17:43'], ['x' => 'date_format:H:i']);
         $this->assertTrue($v->passes());
+
+        // Numeric formats must match exactly rather than being compared as numbers...
+        $v = new Validator($trans, ['x' => '1'], ['x' => 'date_format:n']);
+        $this->assertTrue($v->passes());
+
+        $v = new Validator($trans, ['x' => '01'], ['x' => 'date_format:n']);
+        $this->assertTrue($v->fails());
+
+        $v = new Validator($trans, ['x' => '07'], ['x' => 'date_format:j']);
+        $this->assertTrue($v->fails());
+
+        $v = new Validator($trans, ['x' => '7'], ['x' => 'date_format:G']);
+        $this->assertTrue($v->passes());
+
+        $v = new Validator($trans, ['x' => '07'], ['x' => 'date_format:G']);
+        $this->assertTrue($v->fails());
+
+        $v = new Validator($trans, ['x' => '1700000000'], ['x' => 'date_format:U']);
+        $this->assertTrue($v->passes());
+
+        $v = new Validator($trans, ['x' => 1700000000], ['x' => 'date_format:U']);
+        $this->assertTrue($v->passes());
+
+        $v = new Validator($trans, ['x' => '+1700000000'], ['x' => 'date_format:U']);
+        $this->assertTrue($v->fails());
+
+        $v = new Validator($trans, ['x' => 2024], ['x' => 'date_format:Y']);
+        $this->assertTrue($v->passes());
+
+        $v = new Validator($trans, ['x' => '02024'], ['x' => 'date_format:Y']);
+        $this->assertTrue($v->fails());
     }
 
     public function testDateEquals()
